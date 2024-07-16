@@ -59,8 +59,7 @@ const checkWeatherAndNotify = async () => {
 
   if (rainProbabilityKawaguchi !== null && rainProbabilityFunabashi !== null) {
     if (rainProbabilityKawaguchi >= 50 && rainProbabilityFunabashi >= 50) {
-      await sendSlackNotification(`川口市、船橋市の両方とも降水確率は50%以上です。傘を持ちましょう。\n
-        川口市：${rainProbabilityKawaguchi.toFixed(2)}%、船橋市：${rainProbabilityFunabashi.toFixed(2)}%`);
+      await sendSlackNotification(`川口市、船橋市の両方とも降水確率は50%以上です。傘を持ちましょう。\n川口市:${rainProbabilityKawaguchi.toFixed(2)}%、船橋市:${rainProbabilityFunabashi.toFixed(2)}%`);
     } else if (rainProbabilityKawaguchi >= 50) {
       await sendSlackNotification(`川口市は降水確率は${rainProbabilityKawaguchi.toFixed(2)}%です。傘を持ちましょう。`);
     } else if (rainProbabilityFunabashi >= 50) {
