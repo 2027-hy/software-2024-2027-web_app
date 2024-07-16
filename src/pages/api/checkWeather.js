@@ -6,7 +6,7 @@ import axios from 'axios';
 const API_KEY = '60dd153fbc822ea273b6f93c53e024b8';
 
 // SlackのWebhook URL
-const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
+const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
 
 // 都市の情報
 const cities = {
