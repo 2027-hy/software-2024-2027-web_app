@@ -12,9 +12,13 @@ export default function Home() {
     setMessage('');
 
     try {
+      // 通知を送信
       const response = await fetch('/api/checkWeather', {
         method: 'POST',
       });
+      if (!response.ok) {
+        throw new Error('Failed to send notification');
+      }
       const data = await response.json();
       setMessage(data.message);
 
@@ -22,6 +26,9 @@ export default function Home() {
       const rainResponse = await fetch('/api/getRainProbability', {
         method: 'GET',
       });
+      if (!rainResponse.ok) {
+        throw new Error('Failed to fetch rain probability');
+      }
       const rainData = await rainResponse.json();
       setKawaguchiRain(rainData.kawaguchiRain);
       setFunabashiRain(rainData.funabashiRain);
