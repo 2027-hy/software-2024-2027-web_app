@@ -1,4 +1,4 @@
-// pages/api/checkWeather.js
+// pages/api/getRainProbability.js
 
 import axios from 'axios';
 
@@ -39,43 +39,19 @@ const getWeatherForecast = async (city) => {
   }
 };
 
-const sendSlackNotification = async (message) => {
-  const payload = { text: message };
-
-  try {
-    const response = await axios.post(process.env.SLACK_WEBHOOK_URL, payload);
-    if (response.status !== 200) {
-      throw new Error(`Request to Slack returned an error ${response.status}, the response is:\n${response.data}`);
-    }
-    console.log('Notification sent successfully');
-  } catch (error) {
-    console.error('Error sending Slack notification:', error.message);
-  }
-};
-
-const checkWeatherAndNotify = async () => {
-  const rainProbabilityKawaguchi = await getWeatherForecast(cities.kawaguchi);
-  const rainProbabilityFunabashi = await getWeatherForecast(cities.funabashi);
-
-  if (rainProbabilityKawaguchi !== null && rainProbabilityFunabashi !== null) {
-    if (rainProbabilityKawaguchi >= 50 && rainProbabilityFunabashi >= 50) {
-      await sendSlackNotification(`川口市、船橋市の両方とも降水確率は${Math.max(rainProbabilityKawaguchi, rainProbabilityFunabashi).toFixed(2)}%です。傘を持ちましょう。`);
-    } else if (rainProbabilityKawaguchi >= 50) {
-      await sendSlackNotification(`川口市は降水確率は${rainProbabilityKawaguchi.toFixed(2)}%です。傘を持ちましょう。`);
-    } else if (rainProbabilityFunabashi >= 50) {
-      await sendSlackNotification(`船橋市は降水確率は${rainProbabilityFunabashi.toFixed(2)}%です。傘を持ちましょう。`);
-    } else {
-      await sendSlackNotification('今日の降水確率は50%未満です。傘は必要ありません。');
-    }
-  } else {
-    await sendSlackNotification('天気予報の取得に失敗しました。');
-  }
-};
-
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    await checkWeatherAndNotify();
-    res.status(200).json({ message: '通知が送信されました。' });
+  if (req.method === 'GET') {
+    const rainProbabilityKawaguchi = await getWeatherForecast(cities.kawaguchi);
+    const rainProbabilityFunabashi = await getWeatherForecast(cities.funabashi);
+
+    if (rainProbabilityKawaguchi !== null && rainProbabilityFunabashi !== null) {
+      res.status(200).json({
+        kawaguchiRain: rainProbabilityKawaguchi,
+        funabashiRain: rainProbabilityFunabashi,
+      });
+    } else {
+      res.status(500).json({ message: '天気予報の取得に失敗しました。' });
+    }
   } else {
     res.status(405).json({ message: 'Method not allowed' });
   }
