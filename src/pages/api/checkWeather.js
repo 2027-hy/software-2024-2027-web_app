@@ -2,22 +2,14 @@
 
 import axios from 'axios';
 
-// OpenWeatherMapのAPIキー
-const API_KEY = '60dd153fbc822ea273b6f93c53e024b8';
-
-// SlackのWebhook URL
-const SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/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';
-
-// 都市の情報
 const cities = {
   kawaguchi: 'Kawaguchi,JP',
   funabashi: 'Funabashi,JP'
 };
 
-// 天気予報を取得する関数
 const getWeatherForecast = async (city) => {
   const baseUrl = 'https://api.openweathermap.org/data/2.5/forecast';
-  const apiUrl = `${baseUrl}?q=${city}&appid=${API_KEY}&units=metric`;
+  const apiUrl = `${baseUrl}?q=${city}&appid=${process.env.OPENWEATHERMAP_API_KEY}&units=metric`;
 
   try {
     const response = await axios.get(apiUrl);
@@ -42,26 +34,25 @@ const getWeatherForecast = async (city) => {
     const averageRainProbability = count > 0 ? totalRainProbability / count : 0;
     return averageRainProbability;
   } catch (error) {
-    console.error('Error fetching weather forecast:', error);
+    console.error('Error fetching weather forecast:', error.message);
     return null;
   }
 };
 
-// Slackに通知を送信する関数
 const sendSlackNotification = async (message) => {
   const payload = { text: message };
 
   try {
-    const response = await axios.post(SLACK_WEBHOOK_URL, payload);
+    const response = await axios.post(process.env.SLACK_WEBHOOK_URL, payload);
     if (response.status !== 200) {
       throw new Error(`Request to Slack returned an error ${response.status}, the response is:\n${response.data}`);
     }
+    console.log('Notification sent successfully');
   } catch (error) {
-    console.error('Error sending Slack notification:', error);
+    console.error('Error sending Slack notification:', error.message);
   }
 };
 
-// 天気予報をチェックしてSlackに通知を送信する関数
 const checkWeatherAndNotify = async () => {
   const rainProbabilityKawaguchi = await getWeatherForecast(cities.kawaguchi);
   const rainProbabilityFunabashi = await getWeatherForecast(cities.funabashi);
